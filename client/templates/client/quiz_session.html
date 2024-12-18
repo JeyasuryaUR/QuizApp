@@ -1,0 +1,157 @@
+<!-- filepath: /E:/Self/misc/Projects/Conceptile Intern Task/quiz_project/client/templates/client/quiz_session.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Session</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .hero {
+            background-color: #00d1b2;
+            color: white;
+        }
+        .quiz-container {
+            margin-top: 20px;
+        }
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 52px); /* Adjust based on the height of the hero section */
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar .question-number {
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .sidebar .question-number.answered {
+            color: green;
+        }
+        .sidebar .question-number.skipped {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero is-primary is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">Quiz Session</h1>
+                <h2 class="subtitle">Answer the questions below</h2>
+            </div>
+        </div>
+    </section>
+    <section class="section quiz-container">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <div class="sidebar">
+                        <h2 class="title">Questions</h2>
+                        <div id="question-list"></div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div id="question" class="box"></div>
+                    <div class="buttons">
+                        <button class="button is-link" onclick="prevQuestion()">Previous</button>
+                        <button class="button is-link" onclick="nextQuestion()">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        let sessionId = "{{ session_id }}";
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        async function loadQuestions() {
+            const res = await fetch(`/api/quiz/questions/?session_id=${sessionId}`);
+            const data = await res.json();
+            questions = data;
+            renderQuestion(questions[currentQuestionIndex]);
+            updateQuestionList();
+        }
+
+        function renderQuestion(question) {
+            document.getElementById("question").innerHTML = `
+                <p class="title">${question.question_text}</p>
+                <div class="buttons">
+                    <button class="button is-link" onclick="submitAnswer('${question.id}', 'A')">${question.option_a}</button>
+                    <button class="button is-link" onclick="submitAnswer('${question.id}', 'B')">${question.option_b}</button>
+                    <button class="button is-link" onclick="submitAnswer('${question.id}', 'C')">${question.option_c}</button>
+                    <button class="button is-link" onclick="submitAnswer('${question.id}', 'D')">${question.option_d}</button>
+                </div>
+            `;
+        }
+
+        async function submitAnswer(qid, ans) {
+            questions[currentQuestionIndex].answered = true;
+            questions[currentQuestionIndex].selected_option = ans;
+            updateQuestionList();
+            nextQuestion();
+        }
+
+        function updateQuestionList() {
+            const questionList = document.getElementById("question-list");
+            questionList.innerHTML = '';
+            questions.forEach((question, index) => {
+                const questionNumber = document.createElement('div');
+                questionNumber.classList.add('question-number');
+                if (question.answered) {
+                    questionNumber.classList.add('answered');
+                }
+                questionNumber.innerText = `Question ${index + 1}`;
+                questionNumber.onclick = () => goToQuestion(index);
+                questionList.appendChild(questionNumber);
+            });
+        }
+
+        function goToQuestion(index) {
+            currentQuestionIndex = index;
+            renderQuestion(questions[index]);
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion(questions[currentQuestionIndex]);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion(questions[currentQuestionIndex]);
+            } else {
+                submitQuiz();
+            }
+        }
+
+        async function submitQuiz() {
+            const answers = questions.map(q => ({
+                question_id: q.id,
+                selected_option: q.selected_option
+            }));
+            const res = await fetch('/api/quiz/submit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ session_id: sessionId, answers })
+            });
+            const data = await res.json();
+            window.location.href = `/quiz/${sessionId}/result/`;
+        }
+
+        loadQuestions();
+    </script>
+</body>
+</html>

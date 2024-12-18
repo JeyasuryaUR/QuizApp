@@ -1,0 +1,120 @@
+<!-- filepath: /E:/Self/misc/Projects/Conceptile Intern Task/quiz_project/client/templates/client/quiz_result.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .hero {
+            background-color: #00d1b2;
+            color: white;
+        }
+        .resule-wrapper {
+            display: flex;
+            flex-direction: row;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        .result-box {
+            min-width: 30vw;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-subtitle {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            width: 80vw;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero is-primary is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">Quiz Result</h1>
+                <h2 class="subtitle">Here are your results</h2>
+            </div>
+        </div>
+    </section>
+    <section class="section result-container">
+        <div class="container resule-wrapper">
+            <div id="result" class="result-box">
+                <p class="result-title">Quiz Results</p>
+                <p class="result-subtitle" id="total-questions"></p>
+                <p class="result-subtitle" id="difficulty"></p>
+                <p class="result-subtitle" id="correct-answers"></p>
+                <p class="result-subtitle" id="incorrect-answers"></p>
+                <p class="card-footer mt-4" id="quiz-taken-at"></p>
+            </div>
+            <div class="chart-container">
+                <canvas id="resultChart"></canvas>
+            </div>
+        </div>
+    </section>
+    <script>
+        let sessionId = "{{ session_id }}";
+
+        async function loadResult() {
+            const res = await fetch(`/api/quiz/stats/?session_id=${sessionId}`);
+            const data = await res.json();
+
+            document.getElementById("total-questions").innerText = `Total Questions: ${data.total_questions}`;
+            document.getElementById("difficulty").innerText = `Difficulty: ${data.difficulty}`;
+            document.getElementById("correct-answers").innerText = `Correct Answers: ${data.correct_count}`;
+            document.getElementById("incorrect-answers").innerText = `Incorrect Answers: ${data.incorrect_count}`;
+            document.getElementById("quiz-taken-at").innerText = `${new Date(data.created_at).toLocaleString()}`;
+
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct Answers', 'Incorrect Answers'],
+                    datasets: [{
+                        data: [data.correct_count, data.incorrect_count],
+                        backgroundColor: ['#00d1b2', '#ff3860'],
+                        hoverBackgroundColor: ['#00c4a7', '#ff2b4d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        loadResult();
+    </script>
+</body>
+</html>

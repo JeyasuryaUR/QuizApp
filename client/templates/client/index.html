@@ -1,0 +1,62 @@
+<!-- filepath: /E:/Self/misc/Projects/Conceptile Intern Task/quiz_project/client/templates/client/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .hero {
+            background-color: #00d1b2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero is-primary is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">Welcome to the Quiz</h1>
+                <h2 class="subtitle">Test your knowledge with our fun quiz!</h2>
+                <div class="field">
+                    <label class="label">Number of Questions</label>
+                    <div class="control">
+                        <input class="input" type="number" id="amount" value="5">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Difficulty</label>
+                    <div class="control">
+                        <div class="select">
+                            <select id="difficulty">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-large is-light" onclick="startQuiz()">Start Quiz</button>
+            </div>
+        </div>
+    </section>
+    <script>
+        async function startQuiz() {
+            const amount = document.getElementById("amount").value;
+            const difficulty = document.getElementById("difficulty").value;
+            const res = await fetch(`/api/quiz/start/?amount=${amount}&difficulty=${difficulty}`);
+            const data = await res.json();
+            if (data.session_id) {
+                window.location.href = `/quiz/${data.session_id}/`;
+            } else {
+                alert("Failed to start quiz. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>
