@@ -21,7 +21,7 @@ This is a Django-based Quiz Application that allows users to take quizzes with q
 
 ```sh
 git clone https://github.com/JeyasuryaUR/QuizApp
-cd quiz_project
+cd QuizApp
 ```
 
 2. **Create and activate a virtual environment:**
@@ -42,12 +42,12 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory and add the following variables:
 
 ```
-SECRET_KEY=your_secret_key
-DEBUG=True
+SECRET_KEY=your_secret_key  # Optional
+DEBUG=True  # Optional
 DB_NAME=your_db_name
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_HOST=your_db_host
+DB_HOST=your_db_host 
 DB_PORT=your_db_port
 ```
 
@@ -59,9 +59,15 @@ python manage.py migrate
 
 6. **Load sample questions into the database:**
 
+You can load sample questions from the Open Trivia Database using the following commands:
+
 ```sh
-python manage.py load_sample_questions
+python manage.py load_sample_questions --difficulty easy
+python manage.py load_sample_questions --difficulty medium
+python manage.py load_sample_questions --difficulty hard
 ```
+
+These commands will fetch questions from the Open Trivia Database (https://opentdb.com/) and load them into your local database.
 
 7. **Run the development server:**
 
@@ -103,15 +109,6 @@ Open your web browser and go to `http://127.0.0.1:8000/`.
 
 To deploy the application, you can use services like Heroku, Render, or any other cloud provider that supports Django applications. Make sure to configure the environment variables and database settings accordingly.
 
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
-
 ## Contact
 
-For any questions or inquiries, please contact[jeyasurya0206@example.com].
-
+For any questions or inquiries, please contact [jeyasurya0206@example.com].

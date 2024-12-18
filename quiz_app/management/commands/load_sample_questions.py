@@ -5,8 +5,18 @@ from quiz_app.models import Question
 class Command(BaseCommand):
     help = 'Load quiz questions from Open Trivia Database into the database'
 
-    def handle(self, *args, **kwargs):
-        url = 'https://opentdb.com/api.php?amount=15&type=multiple&difficulty=hard'
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--difficulty',
+            type=str,
+            choices=['easy', 'medium', 'hard'],
+            default='medium',
+            help='Difficulty level of the questions to load (easy, medium, hard)'
+        )
+
+    def handle(self, *args, **options):
+        difficulty = options['difficulty']
+        url = f'https://opentdb.com/api.php?amount=15&type=multiple&difficulty={difficulty}'
         response = requests.get(url)
         data = response.json()
 
@@ -29,6 +39,6 @@ class Command(BaseCommand):
                     difficulty=difficulty
                 )
 
-            self.stdout.write(self.style.SUCCESS('Successfully loaded questions from OpenTDB'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully loaded {difficulty} questions from OpenTDB'))
         else:
             self.stdout.write(self.style.ERROR('Failed to fetch questions from OpenTDB'))
