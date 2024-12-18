@@ -107,7 +107,10 @@ Open your web browser and go to `http://127.0.0.1:8000/`.
 
 ## Deployment
 
+> NOTE: The app is currently deployed with Render at https://quizapp-3rqz.onrender.com/
+
 To deploy the application, you can use services like Heroku, Render, or any other cloud provider that supports Django applications. Make sure to configure the environment variables and database settings accordingly.
+
 
 ## Contact
 
