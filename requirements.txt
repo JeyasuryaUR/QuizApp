@@ -2,3 +2,5 @@ Django
 djangorestframework
 requests
 python-decouple
+psycopg2-binary
+gunicorn
