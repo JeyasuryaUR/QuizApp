@@ -3,5 +3,6 @@ djangorestframework
 requests
 python-decouple
 psycopg2-binary
+whitenoise
 gunicorn
 uvicorn
